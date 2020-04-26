@@ -2,10 +2,13 @@ package com.example.readmusic;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -55,18 +58,38 @@ public class CanvasView extends View {
         // draw the mPath with the mPaint on the canvas when onDraw
         canvas.drawPath(mPath, mPaint);
 
+        DrawClefsAndLines(0, canvas);
+        DrawClefsAndLines(1, canvas);
+        DrawClefsAndLines(2, canvas);
+    }
+
+    private void DrawClefsAndLines(int num, Canvas canvas) {
+
         Paint p = new Paint();
         p = new Paint();
         p.setColor(Color.BLACK);
         p.setStyle(Paint.Style.STROKE);
         p.setStrokeWidth(3f);
+        int spaceBetweenClefs = 60;
+        int startY = 100 + num * (30 *4 + 30 * 4 + spaceBetweenClefs + 100);
 
         for (int i = 0; i < 5; i++) {
-            canvas.drawLine(30, 30 + 30 * i, canvas.getWidth() - 30, 30 + 30 * i, p);
+            canvas.drawLine(30, startY + 30 * i, canvas.getWidth() - 30, startY + 30 * i, p);
         }
 
-        DrawOvalWithCenter(canvas, 30, 30, 30, 35);
+        for (int i = 0; i < 5; i++) {
+            canvas.drawLine(30, startY + 30 * i + 30 * 4 + spaceBetweenClefs, canvas.getWidth() - 30, startY + 30 * i + 30 * 4 + spaceBetweenClefs, p);
+        }
 
+        //DrawOvalWithCenter(canvas, 30, 30, 30, 35);
+
+        Drawable t = getResources().getDrawable(R.drawable.treble_clef, null);
+        t.setBounds(30, startY, 120, startY + 30 * 4);
+        t.draw(canvas);
+
+        Drawable b = getResources().getDrawable(R.drawable.bass_clef, null);
+        b.setBounds(30, startY + 30 * 4 + spaceBetweenClefs, 120, startY + 30 * 4 + 30 * 4 + spaceBetweenClefs);
+        b.draw(canvas);
     }
 
     private void DrawOvalWithCenter(Canvas canvas, int x, int y, int height, int width) {

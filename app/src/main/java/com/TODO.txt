@@ -1,0 +1,16 @@
+
+- NoteOn velocity of 0 = Note Off
+
+
+For Y
+- Find delta notes from center note say B then multiply by delta heights
+- Plus divide ticks by 480 then by notes per line
+For X
+- Divide ticks by 480 mod by # of quarter notes per line then multiply by delta width of a quarter note.
+
+
+
+Done
+- Test Library with Midi file
+- How to convert pitch onto lines
+- Ticks don't line up (Ticks are off I think)
