@@ -28,8 +28,9 @@ public class CanvasView extends View {
     private float mX, mY;
     private static final float TOLERANCE = 5;
     private ArrayList<NoteOn> notes;
-    private int sideMargins = 30;
+    private int lineSideMargins = 30;
     private int clefWidth = 90;
+    private int noteSideMargins = 30;
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -78,9 +79,9 @@ public class CanvasView extends View {
         DrawClefsAndLines(2, canvas);
         //NoteOn note = notes.get(0);
 
-/*        for (int i = 0; i < notes.size(); i++) {
+        for (int i = 0; i < notes.size(); i++) {
             DrawNote(notes.get(i), canvas);
-        }*/
+        }
         DrawNote(notes.get(0), canvas);
     }
 
@@ -89,19 +90,19 @@ public class CanvasView extends View {
         long noteTick = note.getTick();
         //noteValue = 61;
 
-        int noteSpace = canvas.getWidth() - sideMargins - clefWidth;
-        int spaceBetweenBeats = 30;
+        int noteSpace = canvas.getWidth() - (lineSideMargins * 2) - clefWidth - (noteSideMargins * 2);
+        int spaceBetweenBeats = 60;
         int spaceBetweenLines = 30;
-        int notesPerLine = noteSpace / spaceBetweenBeats;
+        int notesPerLine = (int) Math.ceil((double) noteSpace / spaceBetweenBeats);
         int lineNum = ((int) (noteTick / 480)) / notesPerLine;
         int beatNum = ((int) (noteTick / 480)) % notesPerLine;
         int spaceBetweenHalfNotes = spaceBetweenLines / 2;
 
         int spaceBetweenClefs = 60;
-        int middleC_Y = 100 + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + spaceBetweenClefs + spaceBetweenLines * 5 + 100);
+        int middleC_Y = 100 + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + spaceBetweenClefs + spaceBetweenLines * 4 + 100);
         int Ypos = middleC_Y + -1 * (noteValue - 60) * spaceBetweenHalfNotes;
-        int Xpos = sideMargins + clefWidth + beatNum * spaceBetweenBeats;
-        DrawOvalWithCenter(canvas, Xpos, Ypos, 30, 35);
+        int Xpos = lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats;
+        DrawOvalWithCenter(canvas, Xpos, middleC_Y, 30, 35);
     }
 
     private void DrawClefsAndLines(int num, Canvas canvas) {
@@ -116,19 +117,19 @@ public class CanvasView extends View {
         int startY = 100 + num * (spaceBetweenLines *4 + spaceBetweenClefs + spaceBetweenLines * 4 + 100);
 
         for (int i = 0; i < 5; i++) {
-            canvas.drawLine(sideMargins, startY + spaceBetweenLines * i, canvas.getWidth() - sideMargins, startY + spaceBetweenLines * i, p);
+            canvas.drawLine(lineSideMargins, startY + spaceBetweenLines * i, canvas.getWidth() - lineSideMargins, startY + spaceBetweenLines * i, p);
         }
 
         for (int i = 0; i < 5; i++) {
-            canvas.drawLine(sideMargins, startY + spaceBetweenLines * i + spaceBetweenLines * 4 + spaceBetweenClefs, canvas.getWidth() - sideMargins, startY + spaceBetweenLines * i + spaceBetweenLines * 4 + spaceBetweenClefs, p);
+            canvas.drawLine(lineSideMargins, startY + spaceBetweenLines * i + spaceBetweenLines * 4 + spaceBetweenClefs, canvas.getWidth() - lineSideMargins, startY + spaceBetweenLines * i + spaceBetweenLines * 4 + spaceBetweenClefs, p);
         }
 
         Drawable t = getResources().getDrawable(R.drawable.treble_clef, null);
-        t.setBounds(sideMargins, startY, clefWidth + sideMargins, startY + 30 * 4);
+        t.setBounds(lineSideMargins, startY, clefWidth + lineSideMargins, startY + 30 * 4);
         t.draw(canvas);
 
         Drawable b = getResources().getDrawable(R.drawable.bass_clef, null);
-        b.setBounds(sideMargins, startY + 30 * 4 + spaceBetweenClefs, clefWidth + sideMargins, startY + 30 * 4 + 30 * 4 + spaceBetweenClefs);
+        b.setBounds(lineSideMargins, startY + 30 * 4 + spaceBetweenClefs, clefWidth + lineSideMargins, startY + 30 * 4 + 30 * 4 + spaceBetweenClefs);
         b.draw(canvas);
     }
 
