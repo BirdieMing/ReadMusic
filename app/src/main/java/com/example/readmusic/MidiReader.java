@@ -65,4 +65,62 @@ public class MidiReader {
     public ArrayList<NoteOn>  GetNotes() {
         return this.notes;
     }
+
+    public static NoteOnDisplay GetNoteDisplay(NoteOn note) {
+        //https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies
+        switch (note.getNoteValue()) {
+            case 48: //C
+                return new NoteOnDisplay(-7,false);
+            case 49: //C#
+                return new NoteOnDisplay(-7,true);
+            case 50: //D
+                return new NoteOnDisplay(-6,false);
+            case 51: //D#
+                return new NoteOnDisplay(-6,true);
+            case 52: //E
+                return new NoteOnDisplay(-5,false);
+            case 53: //F
+                return new NoteOnDisplay(-4,false);
+            case 54: //F#
+                return new NoteOnDisplay(-4,true);
+            case 55: //G
+                return new NoteOnDisplay(-3,false);
+            case 56: //G#
+                return new NoteOnDisplay(-3,true);
+            case 57: //A
+                return new NoteOnDisplay(-2,false);
+            case 58: //A#
+                return new NoteOnDisplay(-2,true);
+            case 59: //B
+                return new NoteOnDisplay(-1,false);
+            case 60: //C
+                return new NoteOnDisplay(0, false);
+            case 61: //C#
+                return new NoteOnDisplay(0, true);
+            case 62: //D
+                return new NoteOnDisplay(1, false);
+            case 63: //D#
+                return new NoteOnDisplay(1, true);
+            case 64: //E
+                return new NoteOnDisplay(2, false);
+            case 65: //F
+                return new NoteOnDisplay(3, false);
+            case 66: //F#
+                return new NoteOnDisplay(3, true);
+            case 67: //G
+                return new NoteOnDisplay(4, false);
+            case 68: //G#
+                return new NoteOnDisplay(4, true);
+            case 69: //A
+                return new NoteOnDisplay(5, false);
+            case 70: //A#
+                return new NoteOnDisplay(5, true);
+            case 71: //B
+                return new NoteOnDisplay(6, false);
+            case 72: //C
+                return new NoteOnDisplay(7, false);
+            default:
+                return new NoteOnDisplay(0, false);
+        }
+    }
 }

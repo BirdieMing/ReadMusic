@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -81,14 +82,15 @@ public class CanvasView extends View {
 
         for (int i = 0; i < notes.size(); i++) {
             DrawNote(notes.get(i), canvas);
+            Log.i("Note Value", Integer.toString(notes.get(i).getNoteValue()));
         }
-        DrawNote(notes.get(0), canvas);
+        //DrawNote(notes.get(0), canvas);
     }
 
     public void DrawNote(NoteOn note, Canvas canvas) {
         int noteValue = note.getNoteValue();
         long noteTick = note.getTick();
-        //noteValue = 61;
+        NoteOnDisplay noteDisplay = MidiReader.GetNoteDisplay(note);
 
         int noteSpace = canvas.getWidth() - (lineSideMargins * 2) - clefWidth - (noteSideMargins * 2);
         int spaceBetweenBeats = 60;
@@ -100,9 +102,10 @@ public class CanvasView extends View {
 
         int spaceBetweenClefs = 60;
         int middleC_Y = 100 + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + spaceBetweenClefs + spaceBetweenLines * 4 + 100);
-        int Ypos = middleC_Y + -1 * (noteValue - 60) * spaceBetweenHalfNotes;
+        int Ypos = middleC_Y + -1 * noteDisplay.noteDelta * spaceBetweenHalfNotes;
         int Xpos = lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats;
-        DrawOvalWithCenter(canvas, Xpos, middleC_Y, 30, 35);
+
+        DrawOvalWithCenter(canvas, Xpos, Ypos, 30, 35);
     }
 
     private void DrawClefsAndLines(int num, Canvas canvas) {
