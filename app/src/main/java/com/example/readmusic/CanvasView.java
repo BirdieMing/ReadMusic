@@ -7,10 +7,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ScrollView;
+
 
 import com.leff.midi.event.NoteOn;
 
@@ -19,8 +22,6 @@ import java.util.ArrayList;
 
 public class CanvasView extends View {
 
-    //public int width;
-    //public int height;
     private Bitmap mBitmap;
     private Canvas mCanvas;
     private Path mPath;
@@ -32,11 +33,18 @@ public class CanvasView extends View {
     private int lineSideMargins = 30;
     private int clefWidth = 90;
     private int noteSideMargins = 30;
+    private int spaceBetweenBeats = 60;
+    private int spaceBetweenLines = 30;
+    private int spaceBetweenHalfNotes = spaceBetweenLines / 2;
+    private int noteSpace;
+    private int notesPerLine;
+    Button b = new Button(200, 100, "Go.");
+    private int marginTop = 200;
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
         context = c;
-
+        this.setWillNotDraw(false);
         // we set a new Path
         mPath = new Path();
 
@@ -60,51 +68,70 @@ public class CanvasView extends View {
         }
     }
 
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // Try for a width based on our minimum
+        setMeasuredDimension(widthMeasureSpec, 3000);
+    }
+
     // override onSizeChanged
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-
+        Log.i("size info: ", Integer.toString(w) + " "  + Integer.toString(h));
         // your Canvas will draw onto the defined Bitmap
-        mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+        mBitmap = Bitmap.createBitmap(w, 2000, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+        CalNoteSpaces(mCanvas);
     }
 
     // override onDraw
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        int numClef = GetNumClefs(canvas);
 
-        DrawClefsAndLines(0, canvas);
-        DrawClefsAndLines(1, canvas);
-        DrawClefsAndLines(2, canvas);
-        //NoteOn note = notes.get(0);
+        for (int i = 0; i < numClef; i++) {
+            DrawClefsAndLines(i, canvas);
+        }
+
+        DrawNote(notes.get(notes.size() -1 ), canvas);
 
         for (int i = 0; i < notes.size(); i++) {
             DrawNote(notes.get(i), canvas);
-            Log.i("Note Value", Integer.toString(notes.get(i).getNoteValue()));
+            NoteOn note = notes.get(i);
+            Log.i("Note Value", "Value: " + Integer.toString(note.getNoteValue()) + " " + "Tick: "+ note.getTick());
         }
-        //DrawNote(notes.get(0), canvas);
+
+
+        b.DrawButton(canvas);
+    }
+    private int GetNumClefs(Canvas canvas) {
+        NoteOn lastNote = notes.get(notes.size() - 1);
+        long noteTick = lastNote.getTick();
+        int lineNum = ((int) (noteTick / 480)) / notesPerLine;
+
+        return lineNum + 1;
     }
 
-    public void DrawNote(NoteOn note, Canvas canvas) {
+    private void CalNoteSpaces(Canvas canvas) {
+        noteSpace = canvas.getWidth() - (lineSideMargins * 2) - clefWidth - (noteSideMargins * 2);
+        notesPerLine = (int) Math.ceil((double) noteSpace / spaceBetweenBeats);
+    }
+
+    private void DrawNote(NoteOn note, Canvas canvas) {
         int noteValue = note.getNoteValue();
         long noteTick = note.getTick();
         NoteOnDisplay noteDisplay = MidiReader.GetNoteDisplay(note);
 
-        int noteSpace = canvas.getWidth() - (lineSideMargins * 2) - clefWidth - (noteSideMargins * 2);
-        int spaceBetweenBeats = 60;
-        int spaceBetweenLines = 30;
-        int notesPerLine = (int) Math.ceil((double) noteSpace / spaceBetweenBeats);
         int lineNum = ((int) (noteTick / 480)) / notesPerLine;
-        int beatNum = ((int) (noteTick / 480)) % notesPerLine;
-        int spaceBetweenHalfNotes = spaceBetweenLines / 2;
+        double beatNum = ((double) noteTick / 480) % notesPerLine;
 
         int spaceBetweenClefs = 60;
-        int middleC_Y = 100 + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + spaceBetweenClefs + spaceBetweenLines * 4 + 100);
+        int middleC_Y = marginTop + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + spaceBetweenClefs + spaceBetweenLines * 4 + 100);
         int Ypos = middleC_Y + -1 * noteDisplay.noteDelta * spaceBetweenHalfNotes;
-        int Xpos = lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats;
-
+        int Xpos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats);
+        //Log.i("X:", Integer.toString(Xpos));
         DrawOvalWithCenter(canvas, Xpos, Ypos, 30, 35);
     }
 
@@ -117,7 +144,7 @@ public class CanvasView extends View {
         p.setStrokeWidth(3f);
         int spaceBetweenClefs = 60;
         int spaceBetweenLines = 30;
-        int startY = 100 + num * (spaceBetweenLines *4 + spaceBetweenClefs + spaceBetweenLines * 4 + 100);
+        int startY = marginTop + num * (spaceBetweenLines *4 + spaceBetweenClefs + spaceBetweenLines * 4 + 100);
 
         for (int i = 0; i < 5; i++) {
             canvas.drawLine(lineSideMargins, startY + spaceBetweenLines * i, canvas.getWidth() - lineSideMargins, startY + spaceBetweenLines * i, p);
@@ -147,6 +174,15 @@ public class CanvasView extends View {
         int startY = y - height / 2;
         int stopY = y + height / 2;
         canvas.drawOval(startX, startY, stopX, stopY, p);
+
+/*        int tailLength = 100;
+        Paint tailPaint = new Paint();
+        tailPaint = new Paint();
+        tailPaint.setColor(Color.BLACK);
+        tailPaint.setStyle(Paint.Style.STROKE);
+        tailPaint.setStrokeWidth(8f);
+
+        canvas.drawLine(stopX, y, stopX, y - tailLength, tailPaint);*/
     }
     // when ACTION_DOWN start touch according to the x,y values
 /*    private void startTouch(float x, float y) {
@@ -183,7 +219,10 @@ public class CanvasView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
-
+        if (b.IsButtonPressed((int) x, (int) y)) {
+            this.notes = MidiReader.GenerateRandomNotes(5);
+            this.invalidate();
+        }
 /*        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 startTouch(x, y);

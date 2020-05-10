@@ -1,20 +1,19 @@
-5/3/2020
-
-- Tick 399 and 400 get printed to the same spot
+5/10/2020
 - Draw sharp symbol
 - Whole Notes
 - Short lines above or below boundaries
-- Tails?
-- Generate random notes
 - Display letters instead of notes?
-- Draw clefs as needed
-- Scrolling up and down?
 
 Done
-
+- Tick 399 and 400 get printed to the same spot
 - Conversion from Note # to line isn't exact
     - i.e. 60 maps to C. 61 maps C# which is still on the same line
 - NoteOn velocity of 0 = Note Off
 - Test Library with Midi file
 - How to convert pitch onto lines
 - Ticks don't line up (Ticks are off I think)
+- Tails?
+- Generate random notes
+- Draw clefs as needed
+- Scrolling up and down?
+
