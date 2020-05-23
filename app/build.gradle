@@ -5,11 +5,11 @@ android {
 
 
     defaultConfig {
-        applicationId "com.example.readmusic"
+        applicationId "com.ming.readmusic"
         minSdkVersion 25
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 28
+        versionCode 5
+        versionName "4.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
