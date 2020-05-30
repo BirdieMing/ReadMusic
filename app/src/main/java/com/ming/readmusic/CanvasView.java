@@ -128,14 +128,26 @@ public class CanvasView extends View {
         int Xpos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats);
         //Log.i("X:", Integer.toString(Xpos));
         DrawOvalWithCenter(canvas, Xpos, Ypos, 30, 35);
-
+        DrawShortLine(canvas, note, Xpos, Ypos);
         if (noteDisplay.isSharp) {
             DrawSharp(canvas, Xpos, Ypos);
         }
     }
+    private void DrawShortLine(Canvas canvas, NoteOn note, int x, int y) {
+        if (!MidiReader.RequireShortLine(note)) {
+            return;
+        }
+
+        Paint p = new Paint();
+        p = new Paint();
+        p.setColor(Color.BLACK);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(3f);
+
+        canvas.drawLine(x - 30, y, x + 30, y, p);
+    }
 
     private void DrawSharp(Canvas canvas, int x, int y) {
-
         Paint textPaint = new Paint();
         textPaint = new Paint();
         textPaint.setColor(Color.BLACK);
@@ -151,7 +163,6 @@ public class CanvasView extends View {
     }
 
     private void DrawClefsAndLines(int num, Canvas canvas) {
-
         Paint p = new Paint();
         p = new Paint();
         p.setColor(Color.BLACK);
@@ -180,7 +191,6 @@ public class CanvasView extends View {
 
     private void DrawOvalWithCenter(Canvas canvas, int x, int y, int height, int width) {
         Paint p = new Paint();
-        p = new Paint();
         p.setColor(Color.BLACK);
         p.setStyle(Paint.Style.FILL);
 
@@ -189,15 +199,6 @@ public class CanvasView extends View {
         int startY = y - height / 2;
         int stopY = y + height / 2;
         canvas.drawOval(startX, startY, stopX, stopY, p);
-
-/*        int tailLength = 100;
-        Paint tailPaint = new Paint();
-        tailPaint = new Paint();
-        tailPaint.setColor(Color.BLACK);
-        tailPaint.setStyle(Paint.Style.STROKE);
-        tailPaint.setStrokeWidth(8f);
-
-        canvas.drawLine(stopX, y, stopX, y - tailLength, tailPaint);*/
     }
     // when ACTION_DOWN start touch according to the x,y values
 /*    private void startTouch(float x, float y) {

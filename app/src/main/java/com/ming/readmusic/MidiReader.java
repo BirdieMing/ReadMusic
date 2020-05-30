@@ -162,11 +162,21 @@ public class MidiReader {
                 return new NoteOnDisplay(0, false);
         }
     }
+    public static boolean RequireShortLine(NoteOn note) {
+        ArrayList<Integer> shortLineNotes = new ArrayList<Integer>();
+        shortLineNotes.add(40);
+        shortLineNotes.add(60);
+        shortLineNotes.add(79);
+        if (shortLineNotes.contains(note.getNoteValue())) {
+            return true;
+        }
+        return false;
+    }
 
     public static ArrayList<Integer> GetNonSharp() {
         ArrayList<Integer> notes = new ArrayList<Integer>();
-        notes.add(36); //C2
-        notes.add(38); //D2
+        //notes.add(36); //C2
+        //notes.add(38); //D2
         notes.add(40); //E2
         notes.add(41); //F2
         notes.add(43); //G2
@@ -191,8 +201,8 @@ public class MidiReader {
         notes.add(76); //E5
         notes.add(77); //F5
         notes.add(79); //G5
-        notes.add(81); //A5
-        notes.add(83); //B5
+        //notes.add(81); //A5
+        //notes.add(83); //B5
         return notes;
     }
 

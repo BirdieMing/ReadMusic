@@ -1,10 +1,10 @@
 5/10/2020
-- Draw sharp symbol
 - Whole Notes
-- Short lines above or below boundaries
 - Display letters instead of notes?
 
 Done
+- Short lines above or below boundaries
+- Draw sharp symbol
 - Tick 399 and 400 get printed to the same spot
 - Conversion from Note # to line isn't exact
     - i.e. 60 maps to C. 61 maps C# which is still on the same line
