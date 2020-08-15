@@ -20,11 +20,46 @@
             android:text="Example application"
             android:textSize="16sp" />-->
 
-        <com.ming.readmusic.CanvasView
-            android:id="@+id/signature_canvas"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textColor="#FFFFFF" />
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <com.ming.readmusic.CanvasView
+                android:id="@+id/signature_canvas"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="#FFFFFF" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center|top">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="60dp"
+                    android:text="Treble"
+                    android:layout_margin="10dp"
+                    android:onClick="setTreble"
+                    android:drawableLeft="@drawable/treble_clef_small"
+                    android:paddingRight="30dp">
+                </Button>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="60dp"
+                    android:text="Bass"
+                    android:layout_margin="10dp"
+                    android:onClick="setBass"
+                    android:drawableLeft="@drawable/bass_clef_small"
+                    android:paddingRight="30dp">
+                </Button>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="60dp"
+                    android:layout_margin="10dp"
+                    android:drawableStart="@drawable/note_toggle"
+                    android:onClick="switchNoteMode">
+                </Button>
+            </LinearLayout>
+        </FrameLayout>
 
      </androidx.core.widget.NestedScrollView>
 </android.widget.RelativeLayout>

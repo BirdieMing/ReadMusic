@@ -1,8 +1,13 @@
-5/10/2020
-- Whole Notes
+7/11/2020
 - Display letters instead of notes?
+- Whole Notes / Rhythm / Tails ?
+- Off Canvas Menu or Glyph Buttons. Looks like a rookie, which I am, who's gonna see?
 
 Done
+- White lines
+- Sharp
+
+- Treble / Bass at a time
 - Short lines above or below boundaries
 - Draw sharp symbol
 - Tick 399 and 400 get printed to the same spot
