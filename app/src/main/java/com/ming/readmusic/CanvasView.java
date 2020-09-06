@@ -15,6 +15,8 @@ import android.view.View;
 import com.leff.midi.event.NoteOn;
 import java.util.ArrayList;
 
+// cmd + [ and cmd + ]  go back and forth in code
+
 public class CanvasView extends View {
 
     private Bitmap mBitmap;
@@ -24,7 +26,7 @@ public class CanvasView extends View {
     private Paint mPaint;
     private float mX, mY;
     private static final float TOLERANCE = 5;
-    private ArrayList<NoteOn> notes = new ArrayList<NoteOn>();
+    private ArrayList<NoteOnDisplay> notes = new ArrayList<NoteOnDisplay>();
     private int lineSideMargins = 30;
     private int clefWidth = 90;
     private int noteSideMargins = 50;
@@ -33,12 +35,12 @@ public class CanvasView extends View {
     private int spaceBetweenHalfNotes = spaceBetweenLines / 2;
     private int noteSpace;
     private int notesPerLine;
-    private Button trebleButton = new Button(200, 100, "Treble");
-    private Button bassButton = new Button(500, 100, "Bass");
-    private int marginTop = 300;
+    private int marginTop = 100;
     private Clef clef = Clef.Treble;
-    private int numOfNotes = 10;
+    private int numOfNotes = 10; // TODO: Enough for one line?
     private NoteMode noteMode = NoteMode.Note;
+    private double currentTick = 480;
+    private int spaceBetweenClefs = 60;
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -67,7 +69,7 @@ public class CanvasView extends View {
         }*/
 
         clef = Clef.Treble;
-        this.notes = MidiReader.GenerateRandomNotes(numOfNotes, clef);
+        this.notes = MidiReader.GenerateRandomNoteDisplays(numOfNotes, clef);
     }
 
     @Override
@@ -92,25 +94,88 @@ public class CanvasView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        //trebleButton.DrawButton(canvas);
-        //bassButton.DrawButton(canvas);
-
         int numClef = GetNumClefs(canvas);
 
         for (int i = 0; i < numClef; i++) {
             DrawClefsAndLines(i, clef, canvas);
         }
 
+        DrawVerticalLine(canvas);
+
         for (int i = 0; i < notes.size(); i++) {
             DrawNote(notes.get(i), clef, canvas);
-            NoteOn note = notes.get(i);
-            Log.i("Note Value", "Value: " + Integer.toString(note.getNoteValue()) + " " + "Tick: "+ note.getTick());
+        }
+
+        DrawKeyboard(canvas);
+    }
+
+    private void DrawKeyboard(Canvas canvas) {
+        int startX = 800;
+        int startY = 400;
+        int white_key_width = 50;
+        int black_key_width = 25;
+        int white_key_height = 200;
+        int black_key_height = 130;
+
+        Paint wk = new Paint();
+        wk.setColor(Color.BLACK);
+        wk.setStyle(Paint.Style.STROKE);
+        wk.setStrokeWidth(5f);
+
+        for (int i = 0; i < 7; i++) {
+            canvas.drawRect(startX + i * white_key_width, startY, startX + (i + 1) * white_key_width, startY + white_key_height, wk);
+        }
+
+        Paint selected = new Paint();
+        selected.setColor(Color.RED);
+        selected.setStyle(Paint.Style.FILL);
+        selected.setStrokeWidth(5f);
+
+        for (int i = 0; i < notes.size(); i++) {
+            NoteOnDisplay note = notes.get(i);
+            if (note.getTick() == this.currentTick) {
+                if (note.isSharp) {
+                    canvas.drawRect(startX + (50 - 12.5f) +  note.noteDelta * white_key_width, startY, startX + (50 - 12.5f) + black_key_width + note.noteDelta * white_key_width, startY + black_key_height, selected);
+                } else {
+                    canvas.drawRect(startX + note.noteDelta * white_key_width, startY, startX + (note.noteDelta + 1) * white_key_width, startY + white_key_height, selected);
+                }
+            }
+        }
+
+        Paint bk = new Paint();
+        bk.setColor(Color.BLACK);
+        bk.setStyle(Paint.Style.FILL);
+        bk.setStrokeWidth(5f);
+
+        for (int i = 0; i < 7; i++) {
+            if (i == 2 || i == 6) {
+                continue;
+            }
+            canvas.drawRect(startX + (50 - 12.5f) +  i * white_key_width, startY, startX + (50 - 12.5f) + black_key_width + i * white_key_width, startY + black_key_height, bk);
         }
     }
+
+    private void DrawVerticalLine(Canvas canvas) {
+
+        int lineNum = ((int) (currentTick / 480)) / notesPerLine;
+        double beatNum = ((double) currentTick / 480) % notesPerLine;
+
+        int xPos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats);
+
+        Paint p = new Paint();
+        p.setColor(Color.BLACK);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(5f);
+
+        int middleY = marginTop + (spaceBetweenLines * 2) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
+
+        canvas.drawLine(xPos, middleY - spaceBetweenLines * 3.5f, xPos, middleY + spaceBetweenLines * 3.5f, p);
+    }
+
     private int GetNumClefs(Canvas canvas) {
         if (notes.size() == 0) { return 1; }
 
-        NoteOn lastNote = notes.get(notes.size() - 1);
+        NoteOnDisplay lastNote = notes.get(notes.size() - 1);
         long noteTick = lastNote.getTick();
         int lineNum = ((int) (noteTick / 480)) / notesPerLine;
 
@@ -122,15 +187,13 @@ public class CanvasView extends View {
         notesPerLine = (int) Math.ceil((double) noteSpace / spaceBetweenBeats);
     }
 
-    private void DrawNote(NoteOn note, Clef clef, Canvas canvas) {
+    private void DrawNote(NoteOnDisplay note, Clef clef, Canvas canvas) {
         int noteValue = note.getNoteValue();
         long noteTick = note.getTick();
-        NoteOnDisplay noteDisplay = MidiReader.GetNoteDisplay(note);
 
         int lineNum = ((int) (noteTick / 480)) / notesPerLine;
         double beatNum = ((double) noteTick / 480) % notesPerLine;
 
-        int spaceBetweenClefs = 60;
         int middleC_Y;
         if (clef == Clef.Treble) {
             middleC_Y = marginTop + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
@@ -138,25 +201,44 @@ public class CanvasView extends View {
             middleC_Y = marginTop - spaceBetweenLines + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
         }
 
-        int Ypos = middleC_Y + -1 * noteDisplay.noteDelta * spaceBetweenHalfNotes;
+        int Ypos = middleC_Y + -1 * note.noteDelta * spaceBetweenHalfNotes;
         int Xpos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats);
 
+        boolean isSelected = noteTick == this.currentTick;
+
         if (noteMode == NoteMode.Note) {
-            DrawOvalWithCenter(canvas, Xpos, Ypos, 30, 35);
+            DrawOvalWithCenter(canvas, Xpos, Ypos, 30, 35, isSelected);
         } else {
-            DrawLetter(canvas, noteDisplay.letter, Xpos, Ypos);
+            DrawLetter(canvas, note.letter, Xpos, Ypos);
         }
 
         DrawShortLine(canvas, note, Xpos, Ypos);
-        if (noteDisplay.isSharp) {
+        if (note.isSharp) {
             DrawSharp(canvas, Xpos, Ypos);
         }
+    }
+
+    private void DrawOvalWithCenter(Canvas canvas, int x, int y, int height, int width, boolean isSelected) {
+        Paint p = new Paint();
+        if (isSelected) {
+            p.setColor(Color.RED);
+        } else {
+            p.setColor(Color.BLACK);
+        }
+        p.setStyle(Paint.Style.FILL);
+
+        int startX = x - width / 2;
+        int stopX = x + width / 2;
+        int startY = y - height / 2;
+        int stopY = y + height / 2;
+        canvas.drawOval(startX, startY, stopX, stopY, p);
     }
 
     private void DrawLetter(Canvas canvas, String letter, int x, int y) {
         Paint textPaint = new Paint();
         textPaint = new Paint();
         textPaint.setColor(Color.BLACK);
+
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setStrokeWidth(14f);
         textPaint.setTextSize(60);
@@ -168,7 +250,8 @@ public class CanvasView extends View {
         canvas.drawText(letter, startX, startY, textPaint);
     }
 
-    private void DrawShortLine(Canvas canvas, NoteOn note, int x, int y) {
+    private void DrawShortLine(Canvas canvas, NoteOnDisplay note, int x, int y) {
+        // TODO: More than one line?
         if (!MidiReader.RequireShortLine(note)) {
             return;
         }
@@ -226,55 +309,15 @@ public class CanvasView extends View {
         }
     }
 
-    private void DrawOvalWithCenter(Canvas canvas, int x, int y, int height, int width) {
-        Paint p = new Paint();
-        p.setColor(Color.BLACK);
-        p.setStyle(Paint.Style.FILL);
-
-        int startX = x - width / 2;
-        int stopX = x + width / 2;
-        int startY = y - height / 2;
-        int stopY = y + height / 2;
-        canvas.drawOval(startX, startY, stopX, stopY, p);
-    }
-    // when ACTION_DOWN start touch according to the x,y values
-/*    private void startTouch(float x, float y) {
-        mPath.moveTo(x, y);
-        mX = x;
-        mY = y;
-    }*/
-
-/*    // when ACTION_MOVE move touch according to the x,y values
-    private void moveTouch(float x, float y) {
-        float dx = Math.abs(x - mX);
-        float dy = Math.abs(y - mY);
-        if (dx >= TOLERANCE || dy >= TOLERANCE) {
-            mPath.quadTo(mX, mY, (x + mX) / 2, (y + mY) / 2);
-            mX = x;
-            mY = y;
-        }
-    }*/
-
-/*
-    public void clearCanvas() {
-        mPath.reset();
-        invalidate();
-    }
-
-    // when ACTION_UP stop touch
-    private void upTouch() {
-        mPath.lineTo(mX, mY);
-    }
-*/
     public void SetTreble() {
         clef = Clef.Treble;
-        this.notes = MidiReader.GenerateRandomNotes(numOfNotes, clef);
+        this.notes = MidiReader.GenerateRandomNoteDisplays(numOfNotes, clef);
         this.invalidate();
     }
 
     public void SetBass() {
         clef = Clef.Bass;
-        this.notes = MidiReader.GenerateRandomNotes(numOfNotes, clef);
+        this.notes = MidiReader.GenerateRandomNoteDisplays(numOfNotes, clef);
         this.invalidate();
     }
 
@@ -292,29 +335,32 @@ public class CanvasView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();
         float y = event.getY();
-        if (trebleButton.IsButtonPressed((int) x, (int) y)) {
-            clef = Clef.Treble;
-            this.notes = MidiReader.GenerateRandomNotes(numOfNotes, clef);
-            this.invalidate();
-        } else if (bassButton.IsButtonPressed((int) x, (int) y)) {
-            clef = Clef.Bass;
-            this.notes = MidiReader.GenerateRandomNotes(numOfNotes, clef);
-            this.invalidate();
+
+        for (int i = 0; i < this.notes.size(); i++) {
+            long noteTick = this.notes.get(i).getTick();
+
+            int lineNum = ((int) (noteTick / 480)) / notesPerLine;
+            double beatNum = ((double) noteTick / 480) % notesPerLine;
+            int middleC_Y;
+
+            if (clef == Clef.Treble) {
+                middleC_Y = marginTop + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
+            } else {
+                middleC_Y = marginTop - spaceBetweenLines + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
+            }
+
+            int yPos = middleC_Y + -1 * this.notes.get(i).noteDelta * spaceBetweenHalfNotes;
+            int xPos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats);
+
+            int middleY = marginTop + (spaceBetweenLines * 2) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
+            Log.i("distance:", Double.toString(y - middleY));
+            if (Math.abs(x - xPos) < 20 && Math.abs(y - middleY) < 110)
+            {
+                this.currentTick = noteTick;
+                this.invalidate();
+            }
         }
-/*        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                startTouch(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                moveTouch(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                upTouch();
-                invalidate();
-                break;
-        }*/
+
         return true;
     }
 }

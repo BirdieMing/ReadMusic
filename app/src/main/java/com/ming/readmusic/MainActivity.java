@@ -3,6 +3,10 @@ package com.ming.readmusic;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
@@ -13,6 +17,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //NestedScrollView view = (NestedScrollView) findViewById(R.id.nestedView);
         //view.setNestedScrollingEnabled(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+
+        inflater.inflate(R.menu.main_activity_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     public void setTreble(View view) {
@@ -28,5 +40,26 @@ public class MainActivity extends AppCompatActivity {
     public void switchNoteMode(View view) {
         CanvasView canvas = (CanvasView) findViewById(R.id.signature_canvas);
         canvas.SwitchNoteMode();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        CanvasView canvas = (CanvasView) findViewById(R.id.signature_canvas);
+        switch (item.getItemId()) {
+            case R.id.treble_action:
+                canvas.SetTreble();
+                return true;
+            case R.id.bass_action:
+                canvas.SetBass();
+                return true;
+            case R.id.note_letter_action:
+                canvas.SwitchNoteMode();
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 }

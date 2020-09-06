@@ -162,11 +162,11 @@ public class MidiReader {
                 return new NoteOnDisplay(0, false, "");
         }
     }
-    public static boolean RequireShortLine(NoteOn note) {
+    public static boolean RequireShortLine(NoteOnDisplay note) {
         ArrayList<Integer> shortLineNotes = new ArrayList<Integer>();
         shortLineNotes.add(40);
         shortLineNotes.add(60);
-        shortLineNotes.add(79);
+        shortLineNotes.add(81);
         if (shortLineNotes.contains(note.getNoteValue())) {
             return true;
         }
@@ -174,7 +174,8 @@ public class MidiReader {
     }
     public static ArrayList<Integer> GetTrebleNotes() {
         ArrayList<Integer> notes = new ArrayList<Integer>();
-        notes.add(60); //C4 Middle C
+
+        notes.add(77); //F5        notes.add(60); //C4 Middle C
         notes.add(62); //D4
         notes.add(64); //E4
         notes.add(65); //F4
@@ -184,7 +185,6 @@ public class MidiReader {
         notes.add(72); //C5
         notes.add(74); //D5
         notes.add(76); //E5
-        notes.add(77); //F5
         notes.add(79); //G5
         //notes.add(81); //A5
         //notes.add(83); //B5
@@ -247,6 +247,10 @@ public class MidiReader {
         return notes;
     }
 
+    public static ArrayList<NoteOnDisplay> GenerateRandomNoteDisplays(int numNotes, Clef clef) {
+        return GetNoteDisplays(GenerateRandomNotes(numNotes, clef));
+    }
+
     public static ArrayList<NoteOn> GenerateRandomNotes(int numNotes, Clef clef) {
         ArrayList<NoteOn> randomNotes = new ArrayList<NoteOn>();
         ArrayList<Integer> bagOfNotes = GetNonSharp(clef);
@@ -258,5 +262,16 @@ public class MidiReader {
             randomNotes.add(note);
         }
         return randomNotes;
+    }
+
+    public static ArrayList<NoteOnDisplay> GetNoteDisplays(ArrayList<NoteOn> notes) {
+        ArrayList<NoteOnDisplay> noteDisplayList = new ArrayList<NoteOnDisplay>();
+        for (int i = 0; i < notes.size(); i++) {
+            NoteOnDisplay noteDisplay = GetNoteDisplay(notes.get(i));
+            noteDisplay.init(notes.get(i));
+            noteDisplayList.add(noteDisplay);
+        }
+
+        return noteDisplayList;
     }
 }

@@ -1,9 +1,23 @@
-7/11/2020
-- Display letters instead of notes?
+Go back and forth in code
+    Ctrl + Alt + Left and Ctrl + Alt + Right
+    Ctrl + [ or Ctrl + ]
+
+- Draw middle C text
+- Test out sharps
+
+- Play notes in real time
+- Select notes
 - Whole Notes / Rhythm / Tails ?
 - Off Canvas Menu or Glyph Buttons. Looks like a rookie, which I am, who's gonna see?
+- Note sound
+
 
 Done
+- Detect square
+- Draw piano
+- Fix bug with G note
+- Horizontal view
+- Display letters instead of notes?
 - White lines
 - Sharp
 
