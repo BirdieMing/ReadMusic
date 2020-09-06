@@ -158,24 +158,17 @@ public class MidiReader {
                 return new NoteOnDisplay(12, true, "A#");
             case 83: //B5
                 return new NoteOnDisplay(13, false, "B");
+            case 84: //C5
+                return new NoteOnDisplay(14, false, "C");
             default:
                 return new NoteOnDisplay(0, false, "");
         }
     }
-    public static boolean RequireShortLine(NoteOnDisplay note) {
-        ArrayList<Integer> shortLineNotes = new ArrayList<Integer>();
-        shortLineNotes.add(40);
-        shortLineNotes.add(60);
-        shortLineNotes.add(81);
-        if (shortLineNotes.contains(note.getNoteValue())) {
-            return true;
-        }
-        return false;
-    }
+
     public static ArrayList<Integer> GetTrebleNotes() {
         ArrayList<Integer> notes = new ArrayList<Integer>();
 
-        notes.add(77); //F5        notes.add(60); //C4 Middle C
+        notes.add(60); //C4 Middle C
         notes.add(62); //D4
         notes.add(64); //E4
         notes.add(65); //F4
@@ -186,8 +179,10 @@ public class MidiReader {
         notes.add(74); //D5
         notes.add(76); //E5
         notes.add(79); //G5
-        //notes.add(81); //A5
-        //notes.add(83); //B5
+        notes.add(77); //F5
+        notes.add(81); //A5
+        notes.add(83); //B5
+        notes.add(84); //C5
         return notes;
     }
 
@@ -216,34 +211,6 @@ public class MidiReader {
             notes = GetBassNotes();
         }
 
-        //notes.add(36); //C2
-        //notes.add(38); //D2
-        /*notes.add(40); //E2
-        notes.add(41); //F2
-        notes.add(43); //G2
-        notes.add(45); //A2
-        notes.add(47); //B2
-        notes.add(48); //C3
-        notes.add(50); //D3
-        notes.add(52); //E3
-        notes.add(53); //F3
-        notes.add(55); //G3
-        notes.add(57); //A3
-        notes.add(59); //B3*/
-        //notes.add(60); //C4 Middle C
-        /*notes.add(62); //D4
-        notes.add(64); //E4
-        notes.add(65); //F4
-        notes.add(67); //G4
-        notes.add(69); //A4
-        notes.add(71); //B4
-        notes.add(72); //C5
-        notes.add(74); //D5
-        notes.add(76); //E5
-        notes.add(77); //F5
-        notes.add(79); //G5*/
-        //notes.add(81); //A5
-        //notes.add(83); //B5
         return notes;
     }
 

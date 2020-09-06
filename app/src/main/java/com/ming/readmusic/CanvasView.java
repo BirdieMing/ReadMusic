@@ -12,7 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import com.leff.midi.event.NoteOn;
+
 import java.util.ArrayList;
 
 // cmd + [ and cmd + ]  go back and forth in code
@@ -30,7 +30,7 @@ public class CanvasView extends View {
     private int lineSideMargins = 30;
     private int clefWidth = 90;
     private int noteSideMargins = 50;
-    private int spaceBetweenBeats = 70;
+    private int spaceBetweenBeats = 100;
     private int spaceBetweenLines = 30;
     private int spaceBetweenHalfNotes = spaceBetweenLines / 2;
     private int noteSpace;
@@ -41,6 +41,12 @@ public class CanvasView extends View {
     private NoteMode noteMode = NoteMode.Note;
     private double currentTick = 480;
     private int spaceBetweenClefs = 60;
+    private int keyboardStartX = 800;
+    private int keyboardStartY = 400;
+    private int white_key_width = 50;
+    private int black_key_width = 25;
+    private int white_key_height = 200;
+    private int black_key_height = 130;
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -105,26 +111,18 @@ public class CanvasView extends View {
         for (int i = 0; i < notes.size(); i++) {
             DrawNote(notes.get(i), clef, canvas);
         }
-
-        DrawKeyboard(canvas);
+        DrawSelectedNote(canvas);
+        DrawKeyboard(canvas, -2);
+        DrawKeyboard(canvas, -1);
+        DrawKeyboard(canvas, 0);
+        DrawKeyboard(canvas, 1);
+        DrawKeyboard(canvas, 2);
     }
 
-    private void DrawKeyboard(Canvas canvas) {
-        int startX = 800;
-        int startY = 400;
-        int white_key_width = 50;
-        int black_key_width = 25;
-        int white_key_height = 200;
-        int black_key_height = 130;
+    private void DrawSelectedNote(Canvas canvas) {
 
-        Paint wk = new Paint();
-        wk.setColor(Color.BLACK);
-        wk.setStyle(Paint.Style.STROKE);
-        wk.setStrokeWidth(5f);
-
-        for (int i = 0; i < 7; i++) {
-            canvas.drawRect(startX + i * white_key_width, startY, startX + (i + 1) * white_key_width, startY + white_key_height, wk);
-        }
+        int startX = keyboardStartX;
+        int startY = keyboardStartY;
 
         Paint selected = new Paint();
         selected.setColor(Color.RED);
@@ -141,6 +139,31 @@ public class CanvasView extends View {
                 }
             }
         }
+    }
+    private void DrawKeyboard(Canvas canvas, int octaveNum) {
+
+        int startX = keyboardStartX + octaveNum * 7 * white_key_width;
+        int startY = keyboardStartY;
+
+        Paint wk = new Paint();
+        wk.setColor(Color.BLACK);
+        wk.setStyle(Paint.Style.STROKE);
+        wk.setStrokeWidth(5f);
+
+        for (int i = 0; i < 7; i++) {
+            canvas.drawRect(startX + i * white_key_width, startY, startX + (i + 1) * white_key_width, startY + white_key_height, wk);
+        }
+
+        Paint txt = new Paint();
+        txt.setColor(Color.BLACK);
+        txt.setStyle(Paint.Style.STROKE);
+        txt.setStrokeWidth(3f);
+        txt.setTextSize(30);
+
+        if (octaveNum == 0) {
+            canvas.drawText("C4", startX + 5, startY + white_key_height, txt);
+        }
+
 
         Paint bk = new Paint();
         bk.setColor(Color.BLACK);
@@ -188,13 +211,14 @@ public class CanvasView extends View {
     }
 
     private void DrawNote(NoteOnDisplay note, Clef clef, Canvas canvas) {
-        int noteValue = note.getNoteValue();
         long noteTick = note.getTick();
 
         int lineNum = ((int) (noteTick / 480)) / notesPerLine;
         double beatNum = ((double) noteTick / 480) % notesPerLine;
 
         int middleC_Y;
+        int middleLine_Y = marginTop + (spaceBetweenLines * 3) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
+
         if (clef == Clef.Treble) {
             middleC_Y = marginTop + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
         } else {
@@ -204,10 +228,17 @@ public class CanvasView extends View {
         int Ypos = middleC_Y + -1 * note.noteDelta * spaceBetweenHalfNotes;
         int Xpos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats);
 
+        TailDirection tailDirection;
+        if (Ypos > middleLine_Y) {
+            tailDirection = TailDirection.Up;
+        } else {
+            tailDirection = TailDirection.Down;
+        }
+
         boolean isSelected = noteTick == this.currentTick;
 
         if (noteMode == NoteMode.Note) {
-            DrawOvalWithCenter(canvas, Xpos, Ypos, 30, 35, isSelected);
+            DrawNoteShape(canvas, Xpos, Ypos, 30, 40, isSelected, tailDirection);
         } else {
             DrawLetter(canvas, note.letter, Xpos, Ypos);
         }
@@ -218,7 +249,12 @@ public class CanvasView extends View {
         }
     }
 
-    private void DrawOvalWithCenter(Canvas canvas, int x, int y, int height, int width, boolean isSelected) {
+    private enum TailDirection {
+        Up,
+        Down
+    }
+
+    private void DrawNoteShape(Canvas canvas, int x, int y, int height, int width, boolean isSelected, TailDirection tailDirection) {
         Paint p = new Paint();
         if (isSelected) {
             p.setColor(Color.RED);
@@ -232,6 +268,16 @@ public class CanvasView extends View {
         int startY = y - height / 2;
         int stopY = y + height / 2;
         canvas.drawOval(startX, startY, stopX, stopY, p);
+
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(5f);
+
+        int tailLength = 80;
+
+        if (tailDirection == TailDirection.Up)
+            canvas.drawLine(stopX -2, y, stopX - 2, y - tailLength, p);
+        else
+            canvas.drawLine(stopX -2, y, stopX - 2, y + tailLength, p);
     }
 
     private void DrawLetter(Canvas canvas, String letter, int x, int y) {
@@ -250,11 +296,10 @@ public class CanvasView extends View {
         canvas.drawText(letter, startX, startY, textPaint);
     }
 
-    private void DrawShortLine(Canvas canvas, NoteOnDisplay note, int x, int y) {
-        // TODO: More than one line?
-        if (!MidiReader.RequireShortLine(note)) {
-            return;
-        }
+    private void DrawShortLine(Canvas canvas, NoteOnDisplay note, int noteX, int noteY) {
+        int lineNum = 0;
+        int lowerLine = marginTop + (spaceBetweenLines * 4) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
+        int upperLine = marginTop + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
 
         Paint p = new Paint();
         p = new Paint();
@@ -262,7 +307,27 @@ public class CanvasView extends View {
         p.setStyle(Paint.Style.STROKE);
         p.setStrokeWidth(3f);
 
-        canvas.drawLine(x - 30, y, x + 30, y, p);
+        int lineY = noteY;
+
+        while (lineY < upperLine) {
+            if (note.noteDelta % 2 == 0) {
+                canvas.drawLine(noteX - 30, lineY, noteX + 30, lineY, p);
+            } else {
+                canvas.drawLine(noteX - 30, lineY + spaceBetweenLines / 2, noteX + 30, lineY + spaceBetweenLines / 2, p);
+            }
+
+            lineY = lineY + spaceBetweenLines;
+        }
+
+        while (lineY > lowerLine) {
+            if (note.noteDelta % 2 == 0) {
+                canvas.drawLine(noteX - 30, lineY, noteX + 30, lineY, p);
+            } else {
+                canvas.drawLine(noteX - 30, lineY - spaceBetweenLines / 2, noteX + 30, lineY - spaceBetweenLines / 2, p);
+            }
+
+            lineY = lineY - spaceBetweenLines;
+        }
     }
 
     private void DrawSharp(Canvas canvas, int x, int y) {
@@ -353,8 +418,8 @@ public class CanvasView extends View {
             int xPos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats);
 
             int middleY = marginTop + (spaceBetweenLines * 2) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
-            Log.i("distance:", Double.toString(y - middleY));
-            if (Math.abs(x - xPos) < 20 && Math.abs(y - middleY) < 110)
+            //Log.i("distance:", Double.toString(y - middleY));
+            if (Math.abs(x - xPos) < 20 && Math.abs(y - middleY) < 130)
             {
                 this.currentTick = noteTick;
                 this.invalidate();

@@ -2,17 +2,16 @@ Go back and forth in code
     Ctrl + Alt + Left and Ctrl + Alt + Right
     Ctrl + [ or Ctrl + ]
 
-- Draw middle C text
-- Test out sharps
 
+- Test out sharps
 - Play notes in real time
-- Select notes
 - Whole Notes / Rhythm / Tails ?
-- Off Canvas Menu or Glyph Buttons. Looks like a rookie, which I am, who's gonna see?
 - Note sound
 
 
 Done
+- Select notes
+- Draw middle C text
 - Detect square
 - Draw piano
 - Fix bug with G note
