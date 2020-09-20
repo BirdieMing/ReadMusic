@@ -6,6 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="horizontal"
     tools:context=".MainActivity">
 
     <androidx.core.widget.NestedScrollView
@@ -30,37 +31,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textColor="#FFFFFF" />
-           <!-- <LinearLayout
+           <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center|top">
-                <Button
+                android:layout_marginTop="680px">
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="Press the correct key to move on"
+                   android:textSize="20dp"
+                   android:layout_gravity="center"
+                   android:layout_marginLeft="200px"/>
+               <Button
                     android:layout_width="wrap_content"
-                    android:layout_height="60dp"
-                    android:text="Treble"
-                    android:layout_margin="10dp"
-                    android:onClick="setTreble"
-                    android:drawableLeft="@drawable/treble_clef_small"
-                    android:paddingRight="30dp">
-                </Button>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="60dp"
-                    android:text="Bass"
-                    android:layout_margin="10dp"
-                    android:onClick="setBass"
-                    android:drawableLeft="@drawable/bass_clef_small"
-                    android:paddingRight="30dp">
-                </Button>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="60dp"
-                    android:layout_margin="10dp"
-                    android:drawableStart="@drawable/note_toggle"
-                    android:onClick="switchNoteMode">
-                </Button>
-            </LinearLayout>-->
+                    android:layout_height="50dp"
+                    android:text="HINT"
+                    android:layout_marginLeft="400px"
+                    android:onClick="ShowHint"/>
+            </LinearLayout>
         </FrameLayout>
 
      </androidx.core.widget.NestedScrollView>

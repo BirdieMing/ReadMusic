@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
         canvas.SetBass();
     }
 
-    public void switchNoteMode(View view) {
+    public void ShowHint(View view) {
         CanvasView canvas = (CanvasView) findViewById(R.id.signature_canvas);
-        canvas.SwitchNoteMode();
+        canvas.ShowHint();
     }
 
     @Override
@@ -53,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 canvas.SetBass();
                 return true;
             case R.id.note_letter_action:
-                canvas.SwitchNoteMode();
+                canvas.ShowHint();
                 return true;
             default:
                 // If we got here, the user's action was not recognized.

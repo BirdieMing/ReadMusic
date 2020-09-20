@@ -2,9 +2,12 @@ Go back and forth in code
     Ctrl + Alt + Left and Ctrl + Alt + Right
     Ctrl + [ or Ctrl + ]
 
+- Play mode with hint option and help text ?
+- Reset
+
 
 - Test out sharps
-- Play notes in real time
+- Click on note to move onto the next
 - Whole Notes / Rhythm / Tails ?
 - Note sound
 

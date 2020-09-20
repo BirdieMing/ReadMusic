@@ -39,7 +39,6 @@ public class CanvasView extends View {
     private Clef clef = Clef.Treble;
     private int numOfNotes = 10; // TODO: Enough for one line?
     private NoteMode noteMode = NoteMode.Note;
-    private double currentTick = 480;
     private int spaceBetweenClefs = 60;
     private int keyboardStartX = 800;
     private int keyboardStartY = 400;
@@ -47,6 +46,13 @@ public class CanvasView extends View {
     private int black_key_width = 25;
     private int white_key_height = 200;
     private int black_key_height = 130;
+    private double currentTick = 480;
+    //private double currentBeatNum;
+    //private int currentLineNum;
+    private boolean showHint = false;
+
+    private int clickBoxWidth = spaceBetweenBeats;
+    private int clickBoxHeight = 260;
 
     public CanvasView(Context c, AttributeSet attrs) {
         super(c, attrs);
@@ -111,12 +117,32 @@ public class CanvasView extends View {
         for (int i = 0; i < notes.size(); i++) {
             DrawNote(notes.get(i), clef, canvas);
         }
-        DrawSelectedNote(canvas);
+
+        if (showHint)
+            DrawSelectedNote(canvas);
+
+        //DrawBoundingBox(canvas);
         DrawKeyboard(canvas, -2);
         DrawKeyboard(canvas, -1);
         DrawKeyboard(canvas, 0);
         DrawKeyboard(canvas, 1);
         DrawKeyboard(canvas, 2);
+    }
+
+    private void DrawBoundingBox(Canvas canvas) {
+        Paint boxPaint = new Paint();
+        boxPaint.setColor(Color.BLACK);
+        boxPaint.setStyle(Paint.Style.STROKE);
+
+        int currentLineNum = ((int) (this.currentTick / 480)) / notesPerLine;
+        int middleY = marginTop + (spaceBetweenLines * 2) + (currentLineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
+
+        for (int i = 0; i < 10; i++) {
+            int xPos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + i * spaceBetweenBeats);
+
+            canvas.drawRect(xPos - clickBoxWidth / 2, middleY - clickBoxHeight / 2, xPos + clickBoxWidth / 2, middleY + clickBoxHeight / 2, boxPaint);
+        }
+
     }
 
     private void DrawSelectedNote(Canvas canvas) {
@@ -164,7 +190,6 @@ public class CanvasView extends View {
             canvas.drawText("C4", startX + 5, startY + white_key_height, txt);
         }
 
-
         Paint bk = new Paint();
         bk.setColor(Color.BLACK);
         bk.setStyle(Paint.Style.FILL);
@@ -208,6 +233,8 @@ public class CanvasView extends View {
     private void CalNoteSpaces(Canvas canvas) {
         noteSpace = canvas.getWidth() - (lineSideMargins * 2) - clefWidth - (noteSideMargins * 2);
         notesPerLine = (int) Math.ceil((double) noteSpace / spaceBetweenBeats);
+        //currentBeatNum = ((double) this.currentTick / 480) % notesPerLine;
+        //currentLineNum = ((int) (this.currentTick / 480)) / notesPerLine;
     }
 
     private void DrawNote(NoteOnDisplay note, Clef clef, Canvas canvas) {
@@ -386,12 +413,8 @@ public class CanvasView extends View {
         this.invalidate();
     }
 
-    public void SwitchNoteMode() {
-        if (noteMode == NoteMode.Note) {
-            noteMode = NoteMode.Letter;
-        } else {
-            noteMode = NoteMode.Note;
-        }
+    public void ShowHint() {
+        this.showHint = true;
         this.invalidate();
     }
 
@@ -408,24 +431,65 @@ public class CanvasView extends View {
             double beatNum = ((double) noteTick / 480) % notesPerLine;
             int middleC_Y;
 
-            if (clef == Clef.Treble) {
+/*            if (clef == Clef.Treble) {
                 middleC_Y = marginTop + (spaceBetweenLines * 5) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
             } else {
                 middleC_Y = marginTop - spaceBetweenLines + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
             }
 
-            int yPos = middleC_Y + -1 * this.notes.get(i).noteDelta * spaceBetweenHalfNotes;
+            int yPos = middleC_Y + -1 * this.notes.get(i).noteDelta * spaceBetweenHalfNotes;*/
             int xPos = (int) Math.ceil(lineSideMargins + noteSideMargins + clefWidth + beatNum * spaceBetweenBeats);
 
             int middleY = marginTop + (spaceBetweenLines * 2) + (lineNum) * (spaceBetweenLines *4 + 100 + spaceBetweenClefs);
             //Log.i("distance:", Double.toString(y - middleY));
-            if (Math.abs(x - xPos) < 20 && Math.abs(y - middleY) < 130)
+            if (Math.abs(x - xPos) < clickBoxWidth / 2 && Math.abs(y - middleY) < clickBoxHeight / 2)
             {
                 this.currentTick = noteTick;
+                //this.currentBeatNum = ((double) this.currentTick / 480) % notesPerLine;
+                //this.currentLineNum = ((int) (this.currentTick / 480)) / notesPerLine;
+                this.invalidate();
+            }
+
+            if (isClickOnSelectNote(x, y))
+            {
+                this.currentTick = this.currentTick + 480;
+                this.showHint = false;
                 this.invalidate();
             }
         }
 
         return true;
+    }
+
+    private boolean isClickOnSelectNote(float clickX, float clickY) {
+        int boardStartX = keyboardStartX;
+        int boardStartY = keyboardStartY;
+
+        for (int i = 0; i < this.notes.size(); i++) {
+            NoteOnDisplay note = notes.get(i);
+            if (note.getTick() == this.currentTick) {
+                if (note.isSharp) {
+                    float startX = boardStartX + (50 - 12.5f) + note.noteDelta * white_key_width;
+                    float startY = boardStartY;
+                    float endX = boardStartX + (50 - 12.5f) + black_key_width + note.noteDelta * white_key_width;
+                    float endY = boardStartY + black_key_height;
+
+                    if (startX < clickX && clickX < endX && startY < clickY && clickY < endY) {
+                        return true;
+                    }
+                } else {
+                    float startX = boardStartX + note.noteDelta * white_key_width;
+                    float startY = boardStartY;
+                    float endX = boardStartX + (note.noteDelta + 1) * white_key_width;
+                    float endY = boardStartY + white_key_height;
+
+                    if (startX < clickX && clickX < endX && startY < clickY && clickY < endY) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
