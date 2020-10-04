@@ -2,11 +2,18 @@ package com.ming.readmusic;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,8 +21,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //NestedScrollView view = (NestedScrollView) findViewById(R.id.nestedView);
-        //view.setNestedScrollingEnabled(true);
+        Toast.makeText(getApplicationContext(), "Press the correct key to move to the next note.", Toast.LENGTH_LONG).show();
+
     }
 
     @Override
