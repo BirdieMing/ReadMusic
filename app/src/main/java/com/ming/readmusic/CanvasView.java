@@ -418,10 +418,14 @@ public class CanvasView extends View {
         this.invalidate();
     }
 
+    public boolean isPressed = false;
     //override the onTouchEvent
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            return false;
+        }
+        
         float x = event.getX();
         float y = event.getY();
 
@@ -454,8 +458,15 @@ public class CanvasView extends View {
             if (isClickOnSelectNote(x, y))
             {
                 this.currentTick = this.currentTick + 480;
+
+                if (this.currentTick == numOfNotes * 480) {
+                    this.notes = MidiReader.GenerateRandomNoteDisplays(numOfNotes, clef);
+                    this.currentTick = 0;
+                }
+
                 this.showHint = false;
                 this.invalidate();
+                break;
             }
         }
 
